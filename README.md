@@ -1,4 +1,4 @@
-# 🚌 TunjaBus - Sistema de Movilidad en Tiempo Real
+#  TunjaBus - Sistema de Movilidad en Tiempo Real
 
 TunjaBus es una plataforma de código abierto diseñada para rastrear y visualizar la posición de los autobuses de transporte público de Tunja, Colombia, en tiempo real. Este MVP está compuesto por una App móvil para conductores y un panel web interactivo para los usuarios.
 
@@ -9,7 +9,7 @@ TunjaBus es una plataforma de código abierto diseñada para rastrear y visualiz
 
 ---
 
-## 🚀 Setup Local y Ejecución
+##  Setup Local y Ejecución
 
 ### 1. Clonar e Instalar Dependencias
 ```bash
@@ -37,7 +37,7 @@ Dirígete a [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 🌍 Instrucciones de Deploy en Vercel
+##  Instrucciones de Deploy en Vercel
 
 1. Inicia sesión en [Vercel](https://vercel.com) y conecta tu repositorio de GitHub.
 2. Selecciona la carpeta **`user-app`** como el "Root Directory" (Directorio raíz).
@@ -49,7 +49,7 @@ Dirígete a [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## ✅ Checklist de Prueba en Campo MVP
+##  Checklist de Prueba en Campo MVP
 
 Antes de iniciar operaciones comerciales o de prueba, asegúrate de:
 
