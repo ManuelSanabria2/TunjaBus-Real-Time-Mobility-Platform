@@ -1,0 +1,70 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-04-19T19:09:16Z",
+    "timestamp_areas_base": "2026-04-19T08:19:32Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 3418137088,
+      "lat": 5.5563606,
+      "lon": -73.350601,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "Estación Centro Norte"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5089149122,
+      "lat": 5.528253,
+      "lon": -73.3597833,
+      "tags": {
+        "highway": "bus_stop",
+        "name:en": "Bus to Villa de Leyva"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6138353112,
+      "lat": 5.5416523,
+      "lon": -73.3599271,
+      "tags": {
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6138353113,
+      "lat": 5.5434981,
+      "lon": -73.3585347,
+      "tags": {
+        "bench": "yes",
+        "bin": "yes",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "lit": "yes",
+        "name": "Maldonado",
+        "public_transport": "platform",
+        "ref:signed": "no",
+        "shelter": "yes",
+        "tactile_paving": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12208804901,
+      "lat": 5.5385182,
+      "lon": -73.3602916,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "Bus - Tunja to Villa de Leyva"
+      }
+    }
+  ]
+}
