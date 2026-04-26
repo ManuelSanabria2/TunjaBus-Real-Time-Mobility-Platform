@@ -33,3 +33,6 @@ yarn-error.log*
 # Flutter build
 driver-app/build/
 driver-app/.dart_tool/
+
+*.apk
+user-app/android/app/build/

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TunjaBusPassenger</string>
+    <string name="title_activity_main">TunjaBusPassenger</string>
+    <string name="package_name">com.tunjabus.passenger</string>
+    <string name="custom_url_scheme">com.tunjabus.passenger</string>
+</resources>
