@@ -7,8 +7,10 @@ import '../services/supabase_service.dart';
 import 'settings_screen.dart';
 
 class DriverScreen extends StatefulWidget {
+  const DriverScreen({Key? key}) : super(key: key);
+
   @override
-  _DriverScreenState createState() => _DriverScreenState();
+  State<DriverScreen> createState() => _DriverScreenState();
 }
 
 class _DriverScreenState extends State<DriverScreen> {
@@ -24,8 +26,7 @@ class _DriverScreenState extends State<DriverScreen> {
   double _speedKmh = 0.0;
   
   DateTime? _shiftStartTime;
-  double _totalDistanceMeters = 0.0;
-  List<Position> _sessionPath = [];
+  final List<Position> _sessionPath = [];
 
   StreamSubscription<Position>? _positionSubscription;
 
@@ -51,39 +52,39 @@ class _DriverScreenState extends State<DriverScreen> {
   Future<void> _startShift() async {
     final rawToken = _tokenController.text.trim();
     if (rawToken.isEmpty) {
-      _showSnackbar("Please enter a Driver Token");
+      _showErrorDialog("Error", "El token está vacío. Por favor ingrésalo.");
       return;
     }
 
     // 1. Authenticate / get vehicle ID
-    setState(() => _isConnected = false); // show connecting
-    final vId = await _supabaseService.getVehicleIdByToken(rawToken);
+    setState(() => _isConnected = false); 
     
-    if (vId == null) {
-      _showSnackbar("Invalid token or vehicle not found!");
-      return;
-    }
+    try {
+      final vId = await _supabaseService.getVehicleIdByToken(rawToken);
+      if (vId == null) {
+        _showErrorDialog("Denegado", "Token Inválido o Vehículo no encontrado en la Base de Datos.");
+        return;
+      }
+      
+      await _saveToken(rawToken);
 
-    await _saveToken(rawToken);
+      // 2. Request GPS Permission
+      final hasPerm = await _gpsService.requestPermissions();
+      if (!hasPerm) {
+        _showErrorDialog("GPS Denegado", "Debes otorgar permisos de ubicación 'Siempre' para trabajar.");
+        return;
+      }
 
-    // 2. Request GPS Permission
-    final hasPerm = await _gpsService.requestPermissions();
-    if (!hasPerm) {
-      _showSnackbar("GPS Permissions denied!");
-      return;
-    }
+      // 3. Start stream
+      setState(() {
+        _currentVehicleId = vId;
+        _isTracking = true;
+        _isConnected = true;
+        _shiftStartTime = DateTime.now();
+        _sessionPath.clear();
+      });
 
-    // 3. Start stream
-    setState(() {
-      _currentVehicleId = vId;
-      _isTracking = true;
-      _isConnected = true;
-      _shiftStartTime = DateTime.now();
-      _sessionPath.clear();
-      _totalDistanceMeters = 0.0;
-    });
-
-    _gpsService.startTracking();
+      _gpsService.startTracking();
     
     // Listen to our filtered stream
     _positionSubscription = _gpsService.positionStream.listen((Position pos) async {
@@ -106,6 +107,11 @@ class _DriverScreenState extends State<DriverScreen> {
 
       setState(() => _isConnected = success);
     });
+    
+    } catch (e) {
+      _showErrorDialog("Error Crítico", "Fallo al iniciar el turno: $e");
+      setState(() => _isConnected = false);
+    }
   }
 
   void _stopShift() {
@@ -135,9 +141,9 @@ class _DriverScreenState extends State<DriverScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("⏱️ Time: \${duration.inHours}h \${duration.inMinutes.remainder(60)}m"),
-            Text("📏 Distance: \${(distanceMs / 1000).toStringAsFixed(2)} km"),
-            Text("📍 Total Signals Emitted: \${_sessionPath.length}"),
+            Text("⏱️ Time: ${duration.inHours}h ${duration.inMinutes.remainder(60)}m"),
+            Text("📏 Distance: ${(distanceMs / 1000).toStringAsFixed(2)} km"),
+            Text("📍 Total Signals Emitted: ${_sessionPath.length}"),
           ],
         ),
         actions: [
@@ -151,7 +157,22 @@ class _DriverScreenState extends State<DriverScreen> {
   }
 
   void _showSnackbar(String msg) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void _showErrorDialog(String title, String msg) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title, style: const TextStyle(color: Colors.red)),
+        content: Text(msg),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("OK"))
+        ],
+      ),
+    );
   }
 
   void _promptAdminPin() {
@@ -256,14 +277,14 @@ class _DriverScreenState extends State<DriverScreen> {
             // Telemetry
             if (_isTracking) ...[
               Text(
-                "\${_speedKmh.toStringAsFixed(1)} km/h",
+                "${_speedKmh.toStringAsFixed(1)} km/h",
                 style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               const SizedBox(height: 10),
               if (_currentPosition != null) ...[
-                Text("Lat: \${_currentPosition!.latitude.toStringAsFixed(5)}", style: const TextStyle(fontSize: 16)),
-                Text("Lon: \${_currentPosition!.longitude.toStringAsFixed(5)}", style: const TextStyle(fontSize: 16)),
-                Text("Heading: \${_currentPosition!.heading.toStringAsFixed(1)}°", style: const TextStyle(fontSize: 16)),
+                Text("Lat: ${_currentPosition!.latitude.toStringAsFixed(5)}", style: const TextStyle(fontSize: 16)),
+                Text("Lon: ${_currentPosition!.longitude.toStringAsFixed(5)}", style: const TextStyle(fontSize: 16)),
+                Text("Heading: ${_currentPosition!.heading.toStringAsFixed(1)}°", style: const TextStyle(fontSize: 16)),
               ]
             ],
 
