@@ -24,9 +24,24 @@ class DriverApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TunjaBus Driver',
+      title: 'Andén Drivers',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: const Color(0xFFF3EFE9), // Piedra
+        colorScheme: ColorScheme.light(
+          primary: const Color(0xFFB5603A), // Terracota
+          onPrimary: const Color(0xFFF3EFE9), // Piedra
+          secondary: const Color(0xFF5C8265), // Salvia
+          onSecondary: const Color(0xFFF3EFE9), // Piedra
+          surface: Colors.white,
+          onSurface: const Color(0xFF1C2632), // Tinta
+          background: const Color(0xFFF3EFE9), // Piedra
+          onBackground: const Color(0xFF1C2632), // Tinta
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1C2632), // Tinta
+          foregroundColor: Color(0xFFF3EFE9), // Piedra
+          elevation: 0,
+        ),
         useMaterial3: true,
       ),
       home: DriverScreen(),

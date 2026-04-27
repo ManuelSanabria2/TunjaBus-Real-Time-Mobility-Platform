@@ -6,6 +6,8 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { createClient } from '../utils/supabase/client';
 import { haversineDistance, interpolatePosition, Stop } from '../lib/geo';
+import { ROUTE_DEFINITIONS, RouteDefinition } from '../lib/routes';
+import { getRoadSnappedRoute } from '../lib/routing';
 import MainMenu from './MainMenu';
 import { LocateFixed, MapPin, Bus, Radio } from 'lucide-react';
 
@@ -85,6 +87,9 @@ export default function BusMap() {
 
   // Show route toggle
   const [showRoute, setShowRoute] = useState(false);
+
+  // Selected route from the route catalog
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
 
   // Focus location to control map from outside
   const [focusLocation, setFocusLocation] = useState<{ lat: number, lon: number, ts: number } | null>(null);
@@ -307,6 +312,10 @@ export default function BusMap() {
           <RoutePolyline busLat={nearestBus.renderLat} busLon={nearestBus.renderLon} stops={stops} />
         )}
 
+        {/* Render selected catalog route polyline */}
+        {selectedRouteId && (
+          <SelectedRoutePolyline routeId={selectedRouteId} />
+        )}
 
 
         {/* Render Buses */}
@@ -352,6 +361,18 @@ export default function BusMap() {
         buses={buses}
         userPos={userPos}
         stops={stops}
+        selectedRouteId={selectedRouteId}
+        onSelectRoute={(id) => {
+          setSelectedRouteId(id);
+          if (id) {
+            const route = ROUTE_DEFINITIONS.find(r => r.id === id);
+            if (route && route.waypoints.length > 0) {
+              // Center map on the midpoint of the route
+              const midIdx = Math.floor(route.waypoints.length / 2);
+              setFocusLocation({ lat: route.waypoints[midIdx][0], lon: route.waypoints[midIdx][1], ts: Date.now() });
+            }
+          }
+        }}
         onFocusBus={(lat, lon) => setFocusLocation({ lat, lon, ts: Date.now() })}
         onSaveRoute={() => alert('Para guardar una ruta, haz click derecho en el botón de la estrella en el mapa.')}
       />
@@ -462,3 +483,67 @@ function MapFocusController({ focusLocation }: { focusLocation: { lat: number, l
   return null;
 }
 
+/** Renders the polyline + waypoint dots for a selected catalog route */
+function SelectedRoutePolyline({ routeId }: { routeId: string }) {
+  const map = useMap();
+  const route = useMemo(() => ROUTE_DEFINITIONS.find(r => r.id === routeId), [routeId]);
+  const [snappedCoords, setSnappedCoords] = useState<[number, number][]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadRoute() {
+      if (!route || route.waypoints.length < 2) {
+        setSnappedCoords([]);
+        return;
+      }
+
+      // Initial map fit based on waypoints
+      const bounds = L.latLngBounds(route.waypoints.map(w => [w[0], w[1]] as [number, number]));
+      map.fitBounds(bounds, { padding: [60, 60], animate: true, maxZoom: 15 });
+
+      // Fetch road-snapped coordinates
+      const coords = await getRoadSnappedRoute(route.id, route.waypoints);
+      if (isMounted) {
+        setSnappedCoords(coords);
+      }
+    }
+
+    loadRoute();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [route, map]);
+
+  if (!route || route.waypoints.length < 2) return null;
+
+  return (
+    <>
+      {snappedCoords.length > 0 && (
+        <Polyline
+          positions={snappedCoords}
+          color={route.color}
+          weight={5}
+          opacity={0.85}
+          // Remove dashArray for the snapped route to make it look like a continuous road
+          // dashArray="12 6"
+        />
+      )}
+      {/* Optionally keep the straight line as a fallback while loading, but it might look messy. We'll just show waypoints. */}
+      {route.waypoints.map((wp, i) => (
+        <CircleMarker
+          key={`${route.id}-wp-${i}`}
+          center={[wp[0], wp[1]] as [number, number]}
+          radius={5}
+          pathOptions={{
+            color: route.color,
+            fillColor: '#F3EFE9',
+            fillOpacity: 1,
+            weight: 2.5,
+          }}
+        />
+      ))}
+    </>
+  );
+}
