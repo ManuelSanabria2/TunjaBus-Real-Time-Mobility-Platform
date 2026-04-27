@@ -219,9 +219,8 @@ class _DriverScreenState extends State<DriverScreen> {
       appBar: AppBar(
         title: GestureDetector(
           onLongPress: _promptAdminPin,
-          child: const Text("TunjaBus Driver"),
+          child: const Text("Andén Drivers"),
         ),
-        backgroundColor: Colors.blueAccent,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white70),
@@ -233,7 +232,7 @@ class _DriverScreenState extends State<DriverScreen> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            const Icon(Icons.directions_bus, size: 80, color: Colors.blueAccent),
+            const Icon(Icons.directions_bus, size: 80, color: Color(0xFFB5603A)),
             const SizedBox(height: 20),
             TextField(
               controller: _tokenController,
@@ -252,16 +251,16 @@ class _DriverScreenState extends State<DriverScreen> {
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               decoration: BoxDecoration(
                 color: _isTracking 
-                  ? (_isConnected ? Colors.green.shade100 : Colors.orange.shade100)
-                  : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(10),
+                  ? (_isConnected ? const Color(0xFF5C8265).withOpacity(0.15) : const Color(0xFFB5603A).withOpacity(0.15))
+                  : const Color(0xFF8C867E).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     _isTracking ? (_isConnected ? Icons.cloud_done : Icons.cloud_off) : Icons.stop_circle,
-                    color: _isTracking ? (_isConnected ? Colors.green : Colors.orange) : Colors.grey,
+                    color: _isTracking ? (_isConnected ? const Color(0xFF5C8265) : const Color(0xFFB5603A)) : const Color(0xFF8C867E),
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -296,8 +295,8 @@ class _DriverScreenState extends State<DriverScreen> {
               height: 70,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isTracking ? Colors.redAccent : Colors.greenAccent.shade700,
-                  foregroundColor: Colors.white,
+                  backgroundColor: _isTracking ? const Color(0xFFB5603A) : const Color(0xFF5C8265),
+                  foregroundColor: const Color(0xFFF3EFE9),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 onPressed: _isTracking ? _stopShift : _startShift,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, ArrowLeft } from 'lucide-react';
+import { Search, User, ArrowLeft, Bus, MapPinned } from 'lucide-react';
 import { Stop, haversineDistance } from '../lib/geo';
+import { ROUTE_DEFINITIONS, RouteDefinition, matchLabelToRoute } from '../lib/routes';
 
 // Extend TrackedBus interface locally for type checking
 interface VehiclePosition {
@@ -24,25 +25,16 @@ interface MainMenuProps {
   buses: Map<string, TrackedBus>;
   userPos: { lat: number, lon: number } | null;
   stops: Stop[];
+  selectedRouteId: string | null;
+  onSelectRoute: (routeId: string | null) => void;
   onFocusBus: (lat: number, lon: number) => void;
   onSaveRoute: () => void;
 }
 
-// Mock route data mapping with Tunja neighborhoods
-const MOCK_ROUTES: Record<string, { id: string, name: string, number: string }> = {
-  '12': { id: '12', name: 'Centro — Terminal Norte', number: 'R-12' },
-  '07': { id: '07', name: 'UPTC — Av. Colón', number: 'R-07' },
-  '01': { id: '01', name: 'Los Muiscas — Centro', number: 'R-01' },
-  '02': { id: '02', name: 'Coeducadores — Plaza Real', number: 'R-02' },
-  '03': { id: '03', name: 'San Antonio — Patriotas', number: 'R-03' },
-  '04': { id: '04', name: 'El Dorado — Las Nieves', number: 'R-04' },
-  '05': { id: '05', name: 'Ciudad Jardín — Centro', number: 'R-05' },
-  '06': { id: '06', name: 'Altamira — Terminal Sur', number: 'R-06' },
-  'default': { id: '00', name: 'Ruta Circular (Tunja)', number: 'R-00' }
-};
-
-export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRoute }: MainMenuProps) {
+export default function MainMenu({ buses, userPos, stops, selectedRouteId, onSelectRoute, onFocusBus, onSaveRoute }: MainMenuProps) {
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'buses' | 'rutas'>('buses');
+  const [routeSearch, setRouteSearch] = useState('');
   
   // Mobile responsive detection
   const [isMobile, setIsMobile] = useState(false);
@@ -56,10 +48,7 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
 
   // Compute enriched bus data (ETA, Route info)
   const busList = Array.from(buses.entries()).map(([id, bus]) => {
-    // Attempt to extract a route number from the label (e.g., "Bus 12" -> "12")
-    const routeMatch = bus.label.match(/\d+/);
-    const routeNum = routeMatch ? routeMatch[0] : 'default';
-    const routeInfo = MOCK_ROUTES[routeNum] || MOCK_ROUTES['default'];
+    const routeInfo = matchLabelToRoute(bus.label) || ROUTE_DEFINITIONS[0];
 
     // Simple ETA calculation to nearest stop
     let etaMinutes = 0;
@@ -97,7 +86,226 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
 
   const selectedBusDetails = selectedBusId ? busList.find(b => b.id === selectedBusId) : null;
 
-  // Render Left Panel (Search & List)
+  // Filter routes by search
+  const filteredRoutes = ROUTE_DEFINITIONS.filter(r => {
+    if (!routeSearch) return true;
+    const q = routeSearch.toLowerCase();
+    return r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || r.description.toLowerCase().includes(q);
+  });
+
+  // ──── Tab Selector ────
+  const renderTabSelector = () => (
+    <div style={{
+      display: 'flex',
+      background: 'rgba(243, 239, 233, 0.08)',
+      borderRadius: '10px',
+      padding: '3px',
+      gap: '3px',
+    }}>
+      <button
+        onClick={() => { setActiveTab('buses'); onSelectRoute(null); }}
+        style={{
+          flex: 1,
+          padding: '10px 0',
+          borderRadius: '8px',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+          fontSize: '13px',
+          fontWeight: 600,
+          fontFamily: 'var(--font-sans)',
+          transition: 'var(--anden-transition)',
+          background: activeTab === 'buses' ? 'rgba(243, 239, 233, 0.15)' : 'transparent',
+          color: activeTab === 'buses' ? 'var(--anden-piedra)' : 'var(--anden-niebla)',
+        }}
+      >
+        <Bus size={15} /> En vivo
+      </button>
+      <button
+        onClick={() => { setActiveTab('rutas'); setSelectedBusId(null); }}
+        style={{
+          flex: 1,
+          padding: '10px 0',
+          borderRadius: '8px',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+          fontSize: '13px',
+          fontWeight: 600,
+          fontFamily: 'var(--font-sans)',
+          transition: 'var(--anden-transition)',
+          background: activeTab === 'rutas' ? 'rgba(243, 239, 233, 0.15)' : 'transparent',
+          color: activeTab === 'rutas' ? 'var(--anden-piedra)' : 'var(--anden-niebla)',
+        }}
+      >
+        <MapPinned size={15} /> Rutas
+      </button>
+    </div>
+  );
+
+  // ──── Bus List (En vivo tab) ────
+  const renderBusList = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingBottom: '20px' }}>
+      {busList.map((item) => (
+        <div 
+          key={item.id}
+          onClick={() => {
+            setSelectedBusId(item.id);
+            onFocusBus(item.bus.renderLat, item.bus.renderLon);
+          }}
+          style={{
+            background: 'rgba(243, 239, 233, 0.05)',
+            border: '1px solid rgba(243, 239, 233, 0.1)',
+            borderRadius: '16px',
+            padding: '16px',
+            cursor: 'pointer',
+            transition: 'var(--anden-transition)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ 
+              background: item.routeInfo.color, 
+              color: '#F3EFE9', 
+              padding: '4px 8px', 
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: 700
+            }}>
+              {item.routeInfo.code}
+            </span>
+            <span style={{ fontSize: '13px', color: 'var(--anden-niebla)' }}>
+              Llega en {item.etaMinutes} min
+            </span>
+          </div>
+          <p style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
+            {item.routeInfo.name}
+          </p>
+          {/* Progress Bar (Mock visual) */}
+          <div style={{ display: 'flex', height: '2px', marginTop: '16px', gap: '4px' }}>
+            <div style={{ flex: 2, background: item.routeInfo.color, borderRadius: '2px', opacity: 0.7 }} />
+            <div style={{ flex: 1, background: 'rgba(243, 239, 233, 0.2)', borderRadius: '2px' }} />
+          </div>
+        </div>
+      ))}
+      {busList.length === 0 && (
+        <p style={{ color: 'var(--anden-niebla)', textAlign: 'center', fontSize: '14px', marginTop: '20px' }}>
+          Buscando rutas activas...
+        </p>
+      )}
+    </div>
+  );
+
+  // ──── Route Catalog (Rutas tab) ────
+  const renderRouteCatalog = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', paddingBottom: '20px' }}>
+      {/* Route search */}
+      <div style={{
+        background: 'rgba(243, 239, 233, 0.1)',
+        borderRadius: '10px',
+        padding: '10px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '4px',
+      }}>
+        <Search size={16} color="var(--anden-niebla)" />
+        <input 
+          type="text"
+          placeholder="Buscar ruta..." 
+          value={routeSearch}
+          onChange={(e) => setRouteSearch(e.target.value)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            color: 'var(--anden-piedra)',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '14px',
+            width: '100%'
+          }}
+        />
+      </div>
+
+      {filteredRoutes.map((route) => {
+        const isSelected = selectedRouteId === route.id;
+        return (
+          <div
+            key={route.id}
+            onClick={() => onSelectRoute(isSelected ? null : route.id)}
+            style={{
+              background: isSelected ? `${route.color}22` : 'rgba(243, 239, 233, 0.05)',
+              border: `1px solid ${isSelected ? route.color + '55' : 'rgba(243, 239, 233, 0.1)'}`,
+              borderRadius: '14px',
+              padding: '14px 16px',
+              cursor: 'pointer',
+              transition: 'var(--anden-transition)',
+              display: 'flex',
+              gap: '14px',
+              alignItems: 'flex-start',
+            }}
+          >
+            {/* Color indicator */}
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: route.color,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              color: '#F3EFE9',
+              fontSize: '11px',
+              fontWeight: 800,
+              fontFamily: 'var(--font-sans)',
+              letterSpacing: '-0.5px',
+              boxShadow: isSelected ? `0 4px 12px ${route.color}44` : 'none',
+            }}>
+              {route.code.replace('R', '')}
+            </div>
+
+            {/* Route info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  color: isSelected ? '#F3EFE9' : 'var(--anden-piedra)',
+                }}>
+                  {route.name}
+                </span>
+              </div>
+              <p style={{
+                margin: 0,
+                fontSize: '12px',
+                color: 'var(--anden-niebla)',
+                lineHeight: '1.4',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {route.description}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+
+      {filteredRoutes.length === 0 && (
+        <p style={{ color: 'var(--anden-niebla)', textAlign: 'center', fontSize: '14px', marginTop: '20px' }}>
+          No se encontraron rutas
+        </p>
+      )}
+    </div>
+  );
+
+  // ──── Main List Panel ────
   const renderListPanel = () => (
     <div style={{
       background: 'var(--anden-tinta)',
@@ -106,7 +314,7 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
       borderRadius: isMobile ? '24px 24px 0 0' : '24px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '20px',
+      gap: '16px',
       width: '100%',
       height: '100%',
       minHeight: isMobile ? '400px' : 'auto',
@@ -131,7 +339,7 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
             fontWeight: 600,
             textTransform: 'uppercase'
           }}>
-            Tunja · En vivo
+            Tunja · {activeTab === 'buses' ? 'En vivo' : `${ROUTE_DEFINITIONS.length} rutas`}
           </p>
         </div>
         <button style={{
@@ -146,84 +354,15 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div style={{
-        background: 'rgba(243, 239, 233, 0.1)',
-        borderRadius: '12px',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <Search size={18} color="var(--anden-niebla)" />
-        <input 
-          type="text" 
-          placeholder="¿A dónde vas?" 
-          style={{
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            color: 'var(--anden-piedra)',
-            fontFamily: 'var(--font-sans)',
-            fontSize: '15px',
-            width: '100%'
-          }}
-        />
-      </div>
+      {/* Tab Selector */}
+      {renderTabSelector()}
 
-      {/* Route List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingBottom: '20px' }}>
-        {busList.map((item, index) => (
-          <div 
-            key={item.id}
-            onClick={() => {
-              setSelectedBusId(item.id);
-              onFocusBus(item.bus.renderLat, item.bus.renderLon);
-            }}
-            style={{
-              background: 'rgba(243, 239, 233, 0.05)',
-              border: '1px solid rgba(243, 239, 233, 0.1)',
-              borderRadius: '16px',
-              padding: '16px',
-              cursor: 'pointer',
-              transition: 'var(--anden-transition)',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ 
-                background: 'var(--anden-terracota)', 
-                color: 'var(--anden-piedra)', 
-                padding: '4px 8px', 
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: 700
-              }}>
-                {item.routeInfo.number}
-              </span>
-              <span style={{ fontSize: '13px', color: 'var(--anden-niebla)' }}>
-                Llega en {item.etaMinutes} min
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
-              {item.routeInfo.name}
-            </p>
-            {/* Progress Bar (Mock visual) */}
-            <div style={{ display: 'flex', height: '2px', marginTop: '16px', gap: '4px' }}>
-              <div style={{ flex: 2, background: 'var(--anden-salvia)', borderRadius: '2px' }} />
-              <div style={{ flex: 1, background: 'rgba(243, 239, 233, 0.2)', borderRadius: '2px' }} />
-            </div>
-          </div>
-        ))}
-        {busList.length === 0 && (
-          <p style={{ color: 'var(--anden-niebla)', textAlign: 'center', fontSize: '14px', marginTop: '20px' }}>
-            Buscando rutas activas...
-          </p>
-        )}
-      </div>
+      {/* Content based on active tab */}
+      {activeTab === 'buses' ? renderBusList() : renderRouteCatalog()}
     </div>
   );
 
-  // Render Right Panel (Route Details)
+  // ──── Detail Panel (Bus selected) ────
   const renderDetailPanel = () => {
     if (!selectedBusDetails) return null;
     const { routeInfo, etaMinutes, nearestStop, distanceKm } = selectedBusDetails;
@@ -261,8 +400,15 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
           boxShadow: '0 2px 12px rgba(28, 38, 50, 0.04)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ color: 'var(--anden-terracota)', fontWeight: 700, fontSize: '14px' }}>
-              Ruta {routeInfo.number.replace('R-', '')}
+            <span style={{ 
+              color: '#F3EFE9', 
+              fontWeight: 700, 
+              fontSize: '12px', 
+              background: routeInfo.color,
+              padding: '3px 8px',
+              borderRadius: '5px',
+            }}>
+              {routeInfo.code}
             </span>
             <div style={{ width: '8px', height: '8px', background: 'var(--anden-salvia)', borderRadius: '50%' }} />
           </div>
@@ -273,7 +419,7 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
             <span style={{ fontSize: '16px', color: 'var(--anden-tinta)', fontWeight: 600 }}>min</span>
           </div>
           <p style={{ margin: 0, fontSize: '14px', color: 'var(--anden-niebla)' }}>
-            Hacia {routeInfo.name.split('—')[1]?.trim() || routeInfo.name}
+            {routeInfo.name}
           </p>
         </div>
 
@@ -333,6 +479,144 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
     );
   };
 
+  // ──── Route Detail Panel ────
+  const renderRouteDetailPanel = () => {
+    if (!selectedRouteId) return null;
+    const route = ROUTE_DEFINITIONS.find(r => r.id === selectedRouteId);
+    if (!route) return null;
+
+    // Split the description into waypoint names
+    const waypointNames = route.description.split(/\s*[-—]\s*/);
+
+    return (
+      <div style={{
+        background: 'var(--anden-piedra)',
+        padding: '24px 20px',
+        borderRadius: isMobile ? '24px 24px 0 0' : '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        width: '100%',
+        height: '100%',
+        boxShadow: 'var(--anden-shadow-lg)',
+      }}>
+        {isMobile && (
+          <button 
+            onClick={() => onSelectRoute(null)}
+            style={{ 
+              background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', 
+              color: 'var(--anden-niebla)', cursor: 'pointer', padding: 0, marginBottom: '4px',
+              fontFamily: 'var(--font-sans)', fontSize: '14px',
+            }}
+          >
+            <ArrowLeft size={16} /> Volver
+          </button>
+        )}
+
+        {/* Route Header Card */}
+        <div style={{
+          background: route.color,
+          borderRadius: '16px',
+          padding: '20px',
+          color: '#F3EFE9',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px', height: '40px',
+              borderRadius: '10px',
+              background: 'rgba(255,255,255,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '16px', fontWeight: 800,
+              fontFamily: 'var(--font-sans)',
+            }}>
+              {route.code.replace('R', '')}
+            </div>
+            <div>
+              <p style={{ margin: 0, fontSize: '11px', opacity: 0.7, letterSpacing: '1px', fontWeight: 600, textTransform: 'uppercase' }}>
+                Ruta {route.code}
+              </p>
+              <p style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>
+                {route.name}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Recorrido (Route Path) */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: '16px',
+          padding: '20px',
+          boxShadow: '0 2px 12px rgba(28, 38, 50, 0.04)',
+        }}>
+          <p style={{ margin: 0, fontSize: '11px', color: 'var(--anden-niebla)', letterSpacing: '1px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '14px' }}>
+            Recorrido
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            {waypointNames.map((name, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'stretch', gap: '12px' }}>
+                {/* Timeline line + dot */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16px' }}>
+                  <div style={{
+                    width: '10px', height: '10px',
+                    borderRadius: '50%',
+                    background: i === 0 || i === waypointNames.length - 1 ? route.color : '#F3EFE9',
+                    border: `2.5px solid ${route.color}`,
+                    flexShrink: 0,
+                    marginTop: '4px',
+                  }} />
+                  {i < waypointNames.length - 1 && (
+                    <div style={{
+                      width: '2px',
+                      flex: 1,
+                      minHeight: '20px',
+                      background: `${route.color}33`,
+                    }} />
+                  )}
+                </div>
+                {/* Stop name */}
+                <p style={{
+                  margin: 0,
+                  fontSize: '14px',
+                  fontWeight: i === 0 || i === waypointNames.length - 1 ? 700 : 500,
+                  color: i === 0 || i === waypointNames.length - 1 ? 'var(--anden-tinta)' : 'var(--anden-niebla)',
+                  paddingBottom: '12px',
+                  fontFamily: 'var(--font-sans)',
+                }}>
+                  {name.trim()}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Close route button */}
+        <button 
+          onClick={() => onSelectRoute(null)}
+          style={{
+            background: 'transparent',
+            color: 'var(--anden-tinta)',
+            border: '1px solid rgba(28, 38, 50, 0.15)',
+            borderRadius: '12px',
+            padding: '14px',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'var(--anden-transition)',
+            fontFamily: 'var(--font-sans)',
+            marginTop: 'auto',
+          }}
+        >
+          Cerrar ruta
+        </button>
+      </div>
+    );
+  };
+
+  // Determine which detail panel to show
+  const showBusDetail = activeTab === 'buses' && selectedBusId && selectedBusDetails;
+  const showRouteDetail = activeTab === 'rutas' && selectedRouteId;
+
   return (
     <div style={{
       position: 'absolute',
@@ -347,7 +631,6 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
       width: isMobile ? '100%' : '760px',
       maxWidth: '100%',
       transition: 'var(--anden-transition)',
-      // On desktop, align to top left. On mobile, stick to bottom.
     }}>
       {isMobile ? (
         // Mobile Layout: Bottom Sheet switching between views
@@ -358,17 +641,24 @@ export default function MainMenu({ buses, userPos, stops, onFocusBus, onSaveRout
           boxShadow: 'var(--anden-shadow-lg)',
           borderRadius: '24px 24px 0 0'
         }}>
-          {selectedBusId ? renderDetailPanel() : renderListPanel()}
+          {showBusDetail ? renderDetailPanel() 
+           : showRouteDetail ? renderRouteDetailPanel() 
+           : renderListPanel()}
         </div>
       ) : (
-        // Desktop Layout: Side-by-side or stacked fixed panel
+        // Desktop Layout: Side-by-side
         <div style={{ display: 'flex', gap: '16px', width: '100%', alignItems: 'flex-start' }}>
           <div style={{ width: '360px', flexShrink: 0, boxShadow: 'var(--anden-shadow-lg)', borderRadius: '24px' }}>
             {renderListPanel()}
           </div>
-          {selectedBusId && (
+          {showBusDetail && (
             <div style={{ width: '360px', flexShrink: 0, boxShadow: 'var(--anden-shadow-lg)', borderRadius: '24px' }}>
               {renderDetailPanel()}
+            </div>
+          )}
+          {showRouteDetail && (
+            <div style={{ width: '360px', flexShrink: 0, boxShadow: 'var(--anden-shadow-lg)', borderRadius: '24px' }}>
+              {renderRouteDetailPanel()}
             </div>
           )}
         </div>
