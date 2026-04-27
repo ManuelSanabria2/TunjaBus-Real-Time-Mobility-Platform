@@ -87,7 +87,7 @@ export default function BusMap() {
   const [showRoute, setShowRoute] = useState(false);
 
   // Focus location to control map from outside
-  const [focusLocation, setFocusLocation] = useState<{lat: number, lon: number, ts: number} | null>(null);
+  const [focusLocation, setFocusLocation] = useState<{ lat: number, lon: number, ts: number } | null>(null);
 
   // Vehicle labels cache
   const labelsRef = useRef<Map<string, string>>(new Map());
@@ -309,46 +309,46 @@ export default function BusMap() {
 
 
 
-      {/* Render Buses */}
-      {Array.from(animatedBuses.entries()).map(([id, pos]) => {
-        const isNearest = nearestBus?.pos.vehicle_id === id;
-        return (
-          <Marker
-            key={id}
-            position={[pos.lat, pos.lon] as [number, number]}
-            icon={isNearest ? nearestBusIcon : busIcon}
-            zIndexOffset={isNearest ? 1000 : 0}
-          >
-            <Popup>
-              <div style={{ textAlign: 'center', fontFamily: 'var(--font-sans)' }}>
-                <strong style={{ fontSize: '15px', color: 'var(--anden-tinta)' }}>{buses.get(id)?.label || id}</strong><br />
-                <span style={{ fontSize: '12px', color: 'var(--anden-niebla)' }}>{Math.round(buses.get(id)?.pos.speed_kmh || 0)} km/h</span>
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
+        {/* Render Buses */}
+        {Array.from(animatedBuses.entries()).map(([id, pos]) => {
+          const isNearest = nearestBus?.pos.vehicle_id === id;
+          return (
+            <Marker
+              key={id}
+              position={[pos.lat, pos.lon] as [number, number]}
+              icon={isNearest ? nearestBusIcon : busIcon}
+              zIndexOffset={isNearest ? 1000 : 0}
+            >
+              <Popup>
+                <div style={{ textAlign: 'center', fontFamily: 'var(--font-sans)' }}>
+                  <strong style={{ fontSize: '15px', color: 'var(--anden-tinta)' }}>{buses.get(id)?.label || id}</strong><br />
+                  <span style={{ fontSize: '12px', color: 'var(--anden-niebla)' }}>{Math.round(buses.get(id)?.pos.speed_kmh || 0)} km/h</span>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
 
-      {/* Render User Location */}
-      {userPos && (
-        <Marker position={[userPos.lat, userPos.lon] as [number, number]} icon={userIcon} zIndexOffset={500} />
-      )}
+        {/* Render User Location */}
+        {userPos && (
+          <Marker position={[userPos.lat, userPos.lon] as [number, number]} icon={userIcon} zIndexOffset={500} />
+        )}
 
-      {/* Botón para localizar usuario */}
-      <LocateUserButton userPos={userPos} geoError={geoError} />
+        {/* Botón para localizar usuario */}
+        <LocateUserButton userPos={userPos} geoError={geoError} />
 
 
 
-      {/* Auto centrar al encontrar al usuario la primera vez */}
-      <AutoCenterMap userPos={userPos} />
+        {/* Auto centrar al encontrar al usuario la primera vez */}
+        <AutoCenterMap userPos={userPos} />
 
-      {/* Componente para enfocar la cámara */}
-      <MapFocusController focusLocation={focusLocation} />
+        {/* Componente para enfocar la cámara */}
+        <MapFocusController focusLocation={focusLocation} />
 
-    </MapContainer>
+      </MapContainer>
 
       {/* Render Main Menu UI */}
-      <MainMenu 
+      <MainMenu
         buses={buses}
         userPos={userPos}
         stops={stops}
@@ -445,14 +445,14 @@ function RoutePolyline({ busLat, busLon, stops }: RoutePolylineProps) {
     return coords;
   }, [nearestStopIndex, stops, busLat, busLon]);
 
-return (
+  return (
     <Polyline positions={routeCoords} color="var(--anden-terracota)" weight={4} opacity={0.9} />
   );
 }
 
 function MapFocusController({ focusLocation }: { focusLocation: { lat: number, lon: number, ts: number } | null }) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (focusLocation) {
       map.flyTo([focusLocation.lat, focusLocation.lon], 16, { animate: true });
