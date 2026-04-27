@@ -9,8 +9,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  double _minDistance = 10.0;
-  double _maxInterval = 30.0;
+  double _minDistance = 2.0;
+  double _maxInterval = 5.0;
   bool _isLoading = true;
 
   @override
@@ -22,8 +22,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _minDistance = prefs.getDouble('min_distance') ?? 10.0;
-      _maxInterval = prefs.getDouble('max_interval') ?? 30.0;
+      _minDistance = prefs.getDouble('min_distance') ?? 2.0;
+      _maxInterval = prefs.getDouble('max_interval') ?? 5.0;
       _isLoading = false;
     });
   }
@@ -68,9 +68,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             Slider(
               value: _minDistance,
-              min: 5.0,
+              min: 1.0,
               max: 50.0,
-              divisions: 45,
+              divisions: 49,
               label: '${_minDistance.round()}m',
               onChanged: (val) {
                 setState(() => _minDistance = val);
@@ -88,9 +88,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             Slider(
               value: _maxInterval,
-              min: 10.0,
+              min: 1.0,
               max: 60.0,
-              divisions: 50,
+              divisions: 59,
               label: '${_maxInterval.round()}s',
               onChanged: (val) {
                 setState(() => _maxInterval = val);
