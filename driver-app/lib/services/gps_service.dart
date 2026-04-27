@@ -9,8 +9,8 @@ class GpsService {
   DateTime? _lastSentTime;
 
   // Settings
-  double _minDistance = 10.0;
-  double _maxInterval = 30.0;
+  double _minDistance = 2.0;
+  double _maxInterval = 5.0;
 
   // Filters
   final SimpleKalmanFilter _kalmanLat = SimpleKalmanFilter();
@@ -46,8 +46,8 @@ class GpsService {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    _minDistance = prefs.getDouble('min_distance') ?? 10.0;
-    _maxInterval = prefs.getDouble('max_interval') ?? 30.0;
+    _minDistance = prefs.getDouble('min_distance') ?? 2.0;
+    _maxInterval = prefs.getDouble('max_interval') ?? 5.0;
   }
 
   void startTracking() async {

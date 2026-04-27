@@ -1,14 +1,42 @@
+/* ============================================
+   Andén — Design System
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand Palette "Andén" */
+  --anden-tinta: #1C2632;      /* Authority, primary text, heavy elements */
+  --anden-terracota: #B5603A;  /* Primary Accent, highlights */
+  --anden-salvia: #5C8265;     /* Success, availability, nearest bus */
+  --anden-piedra: #F3EFE9;     /* Warm background, replaces pure white */
+  --anden-niebla: #8C867E;     /* Secondary text, soft borders */
+
+  /* Shadows (soft, generous) */
+  --anden-shadow-sm: 0 2px 8px rgba(28, 38, 50, 0.05);
+  --anden-shadow-md: 0 8px 24px rgba(28, 38, 50, 0.08);
+  --anden-shadow-lg: 0 16px 48px rgba(28, 38, 50, 0.12);
+
+  /* Radius */
+  --anden-radius-sm: 8px;
+  --anden-radius-md: 12px;
+  --anden-radius-lg: 20px;
+  --anden-radius-full: 9999px;
+
+  /* Transitions (smooth, confirming) */
+  --anden-transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Fonts */
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+  --background: var(--anden-piedra);
+  --foreground: var(--anden-tinta);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ============================================
+   Base Styles
+   ============================================ */
 
 html {
   height: 100%;
@@ -26,7 +54,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,8 +70,62 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* ============================================
+   Keyframe Animations (Subtle & Confirming)
+   ============================================ */
+
+@keyframes anden-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes anden-slide-up {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   Leaflet Overrides (Andén theme integration)
+   ============================================ */
+
+.leaflet-control-attribution {
+  background: var(--anden-piedra) !important;
+  color: var(--anden-niebla) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+  border-radius: var(--anden-radius-sm) !important;
+  padding: 4px 8px !important;
+  margin: 8px !important;
+  border: 1px solid rgba(28, 38, 50, 0.05) !important;
+  box-shadow: var(--anden-shadow-sm) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--anden-tinta) !important;
+  font-weight: 600;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--anden-piedra) !important;
+  border: 1px solid rgba(28, 38, 50, 0.05) !important;
+  border-radius: var(--anden-radius-md) !important;
+  box-shadow: var(--anden-shadow-md) !important;
+  color: var(--anden-tinta) !important;
+  font-family: var(--font-sans) !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--anden-piedra) !important;
+  border: 1px solid rgba(28, 38, 50, 0.05) !important;
+  border-top: none !important;
+  border-left: none !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--anden-niebla) !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: var(--anden-tinta) !important;
 }
