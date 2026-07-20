@@ -322,15 +322,7 @@ export default function MainMenu({ buses, userPos, stops, selectedRouteId, onSel
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ 
-            fontFamily: 'var(--font-serif)', 
-            fontSize: '32px', 
-            margin: 0, 
-            letterSpacing: '-1px',
-            color: 'var(--anden-piedra)'
-          }}>
-            And<span style={{ color: 'var(--anden-terracota)' }}>é</span>n
-          </h1>
+          <img src="/anden-pasajeros-light.svg" alt="Andén" height="32" style={{ display: 'block', marginBottom: '4px' }} />
           <p style={{ 
             margin: 0, 
             fontSize: '11px', 

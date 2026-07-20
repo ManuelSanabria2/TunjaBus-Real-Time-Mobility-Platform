@@ -26,7 +26,8 @@
     "@types/leaflet": "^1.9.21",
     "@types/react": "19.2.14",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4"
+    "eslint-config-next": "16.2.4",
+    "sharp": "^0.34.5"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "index.js",

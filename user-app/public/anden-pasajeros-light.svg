@@ -1,0 +1,12 @@
+<svg width="320" height="100" viewBox="0 0 320 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="100" rx="12" fill="#F3EFE9"/>
+  <!-- Platform bars (routes by proximity) -->
+  <rect x="16" y="33" width="34" height="4" rx="2" fill="#1C2632"/>
+  <rect x="16" y="45" width="25" height="4" rx="2" fill="#1C2632" opacity="0.45"/>
+  <rect x="16" y="57" width="16" height="4" rx="2" fill="#1C2632" opacity="0.2"/>
+  <!-- Arrival dot -->
+  <circle cx="57" cy="35" r="5.5" fill="#B5603A"/>
+  <!-- Wordmark -->
+  <text x="80" y="48" font-family="Georgia, serif" font-size="28" font-weight="800" fill="#1C2632" letter-spacing="-0.6">Andén</text>
+  <text x="81" y="68" font-family="Arial, sans-serif" font-size="11" font-weight="500" fill="#8C867E" letter-spacing="2.8">PASAJEROS</text>
+</svg>

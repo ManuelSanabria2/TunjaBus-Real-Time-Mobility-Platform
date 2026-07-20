@@ -9,6 +9,9 @@ export const metadata = {
     description: "Rastrea los buses de Tunja en tiempo real.",
     type: "website",
   },
+  icons: {
+    icon: '/icon-pasajeros.svg',
+  },
 };
 
 export const viewport = {
@@ -22,7 +25,12 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+        <div style={{ position: 'fixed', bottom: '8px', width: '100%', textAlign: 'center', fontSize: '11px', color: '#666', opacity: 0.6, pointerEvents: 'none', zIndex: 9999 }}>
+          hecho por manuel jose sanabria gil
+        </div>
+      </body>
     </html>
   );
 }

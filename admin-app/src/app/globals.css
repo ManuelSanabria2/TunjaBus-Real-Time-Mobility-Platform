@@ -1,0 +1,33 @@
+/* ============================================
+   Andén Admin — Design System (Tailwind v4)
+   Tokens compartidos con user-app (globals.css) y driver-app (main.dart).
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Paleta Andén — clases: bg-tinta, text-terracota, border-niebla, etc. */
+  --color-tinta: #1C2632;
+  --color-tinta-soft: #2A3644;
+  --color-terracota: #B5603A;
+  --color-terracota-soft: #F4E4DB;
+  --color-salvia: #5C8265;
+  --color-salvia-soft: #E3EAE4;
+  --color-piedra: #F3EFE9;
+  --color-niebla: #8C867E;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", ui-serif, Georgia, serif;
+
+  --shadow-anden-sm: 0 2px 8px rgb(28 38 50 / 0.05);
+  --shadow-anden-md: 0 8px 24px rgb(28 38 50 / 0.08);
+  --shadow-anden-lg: 0 16px 48px rgb(28 38 50 / 0.12);
+
+  --radius-anden: 12px;
+  --radius-anden-lg: 20px;
+}
+
+body {
+  @apply bg-piedra text-tinta font-sans antialiased;
+}

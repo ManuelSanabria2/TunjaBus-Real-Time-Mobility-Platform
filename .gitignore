@@ -35,4 +35,15 @@ driver-app/build/
 driver-app/.dart_tool/
 
 *.apk
+*.idsig
 user-app/android/app/build/
+
+# signing / secrets (never commit)
+*.jks
+*.keystore
+*.p12
+key.properties
+
+# installers / heavy binaries (never commit)
+*.msix
+*.msi
