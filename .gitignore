@@ -47,3 +47,14 @@ key.properties
 # installers / heavy binaries (never commit)
 *.msix
 *.msi
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# build artifacts
+*.tsbuildinfo
+
+# herramientas locales
+graphify-out/

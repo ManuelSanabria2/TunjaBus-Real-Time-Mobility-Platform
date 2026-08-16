@@ -1,0 +1,75 @@
+LICENCIA DE SOFTWARE PROPIETARIO — TunjaBus / "Andén"
+Copyright (c) 2026 Manuel Sanabria. Todos los derechos reservados.
+All rights reserved. This is proprietary software — not open source.
+
+------------------------------------------------------------------------------
+1. TITULARIDAD
+------------------------------------------------------------------------------
+Este repositorio y todo su contenido —código fuente, esquemas de base de
+datos, migraciones, documentación, diseño, marca "Andén" y recursos gráficos—
+son propiedad exclusiva del titular del copyright indicado arriba y están
+protegidos por la Ley 23 de 1982 y la Decisión Andina 351 de 1993 sobre
+derecho de autor, y por los tratados internacionales aplicables.
+
+Publicar el código en un repositorio accesible no lo convierte en software
+libre ni de código abierto, ni implica renuncia alguna a estos derechos.
+
+------------------------------------------------------------------------------
+2. PROHIBICIONES
+------------------------------------------------------------------------------
+Sin autorización previa, expresa y por escrito del titular, queda prohibido:
+
+  a) usar el software, total o parcialmente, con fines comerciales o de
+     producción;
+  b) copiarlo, reproducirlo, publicarlo o redistribuirlo por cualquier medio;
+  c) modificarlo, traducirlo o crear obras derivadas a partir de él;
+  d) sublicenciarlo, venderlo, arrendarlo, cederlo o prestarlo;
+  e) desplegarlo como servicio (SaaS) para terceros;
+  f) retirar u ocultar los avisos de copyright, autoría o titularidad.
+
+------------------------------------------------------------------------------
+3. USOS PERMITIDOS SIN AUTORIZACIÓN PREVIA
+------------------------------------------------------------------------------
+Se permite únicamente:
+
+  a) consultar y leer el código con fines de evaluación técnica, revisión de
+     seguridad o auditoría de compra;
+  b) ejecutarlo localmente, sin fines comerciales, con el único propósito de
+     evaluarlo.
+
+Ningún uso permitido en esta sección transfiere derecho de propiedad alguno.
+
+------------------------------------------------------------------------------
+4. LICENCIAS COMERCIALES
+------------------------------------------------------------------------------
+El uso en producción, la cesión de derechos y cualquier otro uso no
+contemplado en la sección 3 requieren una licencia comercial escrita e
+independiente, negociada con el titular. Escribe a
+manueljosesanabriagil19@gmail.com para solicitarla.
+
+------------------------------------------------------------------------------
+5. COMPONENTES DE TERCEROS
+------------------------------------------------------------------------------
+Esta licencia cubre el código original de este repositorio. Las dependencias
+de terceros (Next.js, React, Flutter, Leaflet, Supabase, OSRM, los datos de
+OpenStreetMap y demás) conservan sus propias licencias y términos, que
+prevalecen sobre este documento en lo que a ellas respecta. Los datos de
+paraderos derivados de OpenStreetMap están sujetos a la Open Database License
+(ODbL) de la OpenStreetMap Foundation.
+
+------------------------------------------------------------------------------
+6. AUSENCIA DE GARANTÍA Y LIMITACIÓN DE RESPONSABILIDAD
+------------------------------------------------------------------------------
+EL SOFTWARE SE ENTREGA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O
+IMPLÍCITA, INCLUIDAS —SIN LIMITARSE A ELLAS— LAS GARANTÍAS DE
+COMERCIABILIDAD, IDONEIDAD PARA UN FIN DETERMINADO, DISPONIBILIDAD,
+CONTINUIDAD DEL SERVICIO O EXACTITUD DE LAS POSICIONES Y TIEMPOS ESTIMADOS
+QUE MUESTRA. EN NINGÚN CASO EL TITULAR SERÁ RESPONSABLE POR DAÑOS DIRECTOS,
+INDIRECTOS, INCIDENTALES O CONSECUENTES DERIVADOS DEL USO O LA IMPOSIBILIDAD
+DE USO DEL SOFTWARE.
+
+------------------------------------------------------------------------------
+7. LEY APLICABLE
+------------------------------------------------------------------------------
+Esta licencia se rige por las leyes de la República de Colombia. Cualquier
+controversia se someterá a los jueces competentes de Tunja, Boyacá.

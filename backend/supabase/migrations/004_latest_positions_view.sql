@@ -27,6 +27,11 @@ ORDER BY vehicle_id, timestamp DESC;
 
 GRANT SELECT ON latest_vehicle_positions TO anon, authenticated;
 
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('004', 'Vista latest_vehicle_positions')
+ON CONFLICT (version) DO NOTHING;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------

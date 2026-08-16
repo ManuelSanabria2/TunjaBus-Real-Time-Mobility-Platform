@@ -13,11 +13,24 @@ transaccional: si falla, no deja cambios a medias.
 - [ ] Backup: Dashboard → Database → Backups (o exporta `vehicles` y
       `vehicle_positions` si quieres doble seguridad).
 - [ ] Ten a mano el acceso al SQL editor con rol de administrador.
+- [ ] **Comprueba qué falta por aplicar** (si la tabla no existe, esta base no
+      tiene ninguna migración registrada y empiezas por `000`):
+
+      SELECT version, applied_at FROM schema_migrations ORDER BY version;
 
 ## Orden de aplicación
 
+Cada migración registra su versión en `schema_migrations` **dentro de su propia
+transacción**: si la migración falla, tampoco queda registrada. Por eso `000`
+va primero — sin esa tabla, las demás fallan al final y hacen rollback (falla
+segura, no deja nada a medias).
+
+Ninguna migración de la 001 a la 008 es re-ejecutable: consúltalas siempre con
+`schema_migrations` antes de correr una, no las apliques "por si acaso".
+
 | # | Archivo | Qué hace |
 |---|---|---|
+| 0 | `000_schema_migrations.sql` | Crea el registro `schema_migrations` (versión, fecha, nota) con RLS activo y sin policies: solo `service_role` lo lee. Incluye el bloque para marcar a mano las migraciones que una base ya traía aplicadas de antes. |
 | 1 | `001_hashed_token_rpc.sql` | Elimina el token en texto plano (`vehicles.token` → `token_hash` SHA-256 con índice único), bloquea el INSERT directo del cliente por RLS, crea el RPC `insert_vehicle_position()` (única vía de escritura) y `provision_vehicle_token()`. Añade CHECKs de lat/lon/velocidad/rumbo, FKs con `ON DELETE` e índice `(vehicle_id, timestamp)`. |
 | 2 | `002_rate_limit_and_auth_log.sql` | Rate limit atómico de 1 insert/segundo por vehículo (descarte silencioso) y tabla `auth_failures` para intentos de token inválido. El RPC pasa a devolver `'ok' / 'invalid_token' / 'out_of_range'` en vez de lanzar error. |
 | 3 | `003_operators_multi_tenant.sql` | Multi-operador: tablas `operators`, `operator_members`, `authority_users` (Secretaría, solo lectura); `operator_id` en `routes`/`vehicles` con backfill al operador semilla; RLS de gestión por cooperativa; `provision_vehicle_token()` ahora recibe el **UUID** del vehículo y pueden llamarla los miembros de la cooperativa dueña. |
@@ -90,6 +103,9 @@ transaccional: si falla, no deja cambios a medias.
 Cada migración trae su smoke test al final del archivo. Los esenciales:
 
 ```sql
+-- Las 9 versiones quedaron registradas:
+SELECT version, applied_at FROM schema_migrations ORDER BY version;  -- 000..008 ✓
+
 -- El secreto ya no existe:
 SELECT token FROM vehicles;                                   -- ERROR: column does not exist ✓
 

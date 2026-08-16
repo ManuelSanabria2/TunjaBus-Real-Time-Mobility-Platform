@@ -28,9 +28,9 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- ---------------------------------------------------------------------------
 ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS token_hash TEXT;
 
--- Drop the plaintext token WITHOUT migrating its value. The pilot token
--- ('TOKEN_PILOTO_PURGADO') is low-entropy AND was committed to git, so it is
--- burned: hashing it forward would just preserve a known-compromised secret.
+-- Drop the plaintext token WITHOUT migrating its value. The pilot token was a
+-- low-entropy literal AND was committed to git (history since purged), so it
+-- is burned: hashing it forward would just preserve a compromised secret.
 -- Every vehicle must be re-provisioned via provision_vehicle_token() below.
 ALTER TABLE vehicles DROP COLUMN IF EXISTS token;
 
@@ -174,6 +174,11 @@ $$;
 
 REVOKE ALL ON FUNCTION provision_vehicle_token(TEXT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION provision_vehicle_token(TEXT) TO service_role;
+
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('001', 'Token hasheado (SHA-256) + RPC insert_vehicle_position')
+ON CONFLICT (version) DO NOTHING;
 
 COMMIT;
 

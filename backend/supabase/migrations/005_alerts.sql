@@ -68,6 +68,11 @@ CREATE POLICY "alerts_resolve_own_operator" ON alerts
 -- Sin policies de INSERT/DELETE: solo la Edge Function (service_role) crea;
 -- nadie borra desde el cliente.
 
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('005', 'Alertas de senal perdida')
+ON CONFLICT (version) DO NOTHING;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------

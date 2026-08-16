@@ -148,6 +148,11 @@ $$;
 REVOKE ALL ON FUNCTION insert_vehicle_position(TEXT, DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION insert_vehicle_position(TEXT, DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION) TO anon, authenticated;
 
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('002', 'Rate limit por vehiculo + log de auth_failures')
+ON CONFLICT (version) DO NOTHING;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------

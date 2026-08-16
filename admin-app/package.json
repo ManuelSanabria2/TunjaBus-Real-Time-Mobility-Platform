@@ -2,6 +2,8 @@
   "name": "admin-app",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
+  "description": "Andén — panel de administración (cooperativas y Secretaría de Movilidad)",
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",

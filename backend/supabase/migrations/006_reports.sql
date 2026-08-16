@@ -167,6 +167,11 @@ REVOKE ALL ON FUNCTION report_coverage(DATE, DATE) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION report_activity(DATE, DATE) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION report_coverage(DATE, DATE) TO authenticated, service_role;
 
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('006', 'Reportes: horario operativo + RPCs report_activity/report_coverage')
+ON CONFLICT (version) DO NOTHING;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------

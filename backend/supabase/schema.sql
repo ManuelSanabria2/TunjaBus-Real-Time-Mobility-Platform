@@ -669,3 +669,35 @@ ON CONFLICT DO NOTHING;
 INSERT INTO vehicles (id, route_id, operator_id, token_hash, label)
 VALUES ('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', NULL, 'BUS-001')
 ON CONFLICT DO NOTHING;
+
+-- ==========================================
+-- 10. MIGRATION REGISTRY — qué migraciones tiene esta base.
+--     En una instalación limpia el esquema ya contiene todo lo que aportan
+--     000-008, así que se marcan todas: aplicar cualquiera encima sería
+--     redundante (y algunas no son re-ejecutables).
+--     Metadato de operación, no dato público: RLS activo y sin policies →
+--     solo service_role (que bypasea RLS) lo ve.
+-- ==========================================
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version    TEXT PRIMARY KEY,
+  applied_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  note       TEXT
+);
+
+COMMENT ON TABLE schema_migrations IS
+  'Migraciones de backend/supabase/migrations/ ya aplicadas a esta base.';
+
+ALTER TABLE schema_migrations ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON schema_migrations FROM anon, authenticated;
+
+INSERT INTO schema_migrations (version, note) VALUES
+  ('000', 'Registro de migraciones aplicadas'),
+  ('001', 'Token hasheado (SHA-256) + RPC insert_vehicle_position'),
+  ('002', 'Rate limit por vehiculo + log de auth_failures'),
+  ('003', 'Multi-operador: operators / operator_members / authority_users'),
+  ('004', 'Vista latest_vehicle_positions'),
+  ('005', 'Alertas de senal perdida'),
+  ('006', 'Reportes: horario operativo + RPCs report_activity/report_coverage'),
+  ('007', 'Retencion: daily_stats + aggregate_and_purge_positions'),
+  ('008', 'captured_at en insert_vehicle_position (cola offline)')
+ON CONFLICT (version) DO NOTHING;

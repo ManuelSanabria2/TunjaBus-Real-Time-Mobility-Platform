@@ -214,6 +214,11 @@ $$;
 REVOKE ALL ON FUNCTION provision_vehicle_token(UUID) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION provision_vehicle_token(UUID) TO authenticated, service_role;
 
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('003', 'Multi-operador: operators / operator_members / authority_users')
+ON CONFLICT (version) DO NOTHING;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------

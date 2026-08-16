@@ -29,9 +29,9 @@
     "eslint-config-next": "16.2.4",
     "sharp": "^0.34.5"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "description": "Andén — app de pasajeros (web + APK Capacitor)",
   "main": "index.js",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "UNLICENSED"
 }

@@ -154,6 +154,11 @@ $$;
 REVOKE ALL ON FUNCTION aggregate_and_purge_positions(INT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION aggregate_and_purge_positions(INT) TO service_role;
 
+-- Registro en el control de migraciones (requiere 000_schema_migrations.sql).
+INSERT INTO schema_migrations (version, note)
+VALUES ('007', 'Retencion: daily_stats + aggregate_and_purge_positions')
+ON CONFLICT (version) DO NOTHING;
+
 COMMIT;
 
 -- ---------------------------------------------------------------------------
